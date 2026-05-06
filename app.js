@@ -247,10 +247,10 @@ function createClue({ kind, index, target, sum }) {
 
   if (kind === "row") {
     clue.style.gridRow = index + 1;
-    clue.style.gridColumn = SIZE + 1;
+    clue.style.gridColumn = SIZE + 2;
     clue.setAttribute("aria-label", `Objetivo de fila ${index + 1}: ${target}. Suma actual: ${sum}`);
   } else {
-    clue.style.gridRow = SIZE + 1;
+    clue.style.gridRow = SIZE + 2;
     clue.style.gridColumn = index + 1;
     clue.setAttribute("aria-label", `Objetivo de columna ${index + 1}: ${target}. Suma actual: ${sum}`);
   }
