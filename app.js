@@ -449,6 +449,8 @@ async function init() {
     if (event.touches.length > 1) event.preventDefault();
   }, { passive: false });
   document.addEventListener("touchend", (event) => {
+    if (event.target.closest("#board")) return;
+
     const now = Date.now();
     if (now - lastTouchEnd <= 300) event.preventDefault();
     lastTouchEnd = now;

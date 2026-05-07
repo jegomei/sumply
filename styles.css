@@ -75,12 +75,11 @@ button {
 }
 
 .topbar {
-  width: var(--puzzle-size);
+  width: 100%;
   min-height: 54px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  transform: translateX(calc((var(--clue-size) + var(--clue-gap)) / -2));
 }
 
 .brand {
@@ -117,10 +116,9 @@ button {
 .timer-row {
   margin-top: 8px;
   min-height: 30px;
-  width: var(--puzzle-size);
+  width: 100%;
   display: flex;
   justify-content: center;
-  transform: translateX(calc((var(--clue-size) + var(--clue-gap)) / -2));
 }
 
 .timer-row time {
@@ -144,6 +142,7 @@ button {
   grid-template-rows: repeat(5, calc(var(--puzzle-size) / 5)) var(--clue-gap) var(--clue-size);
   justify-content: center;
   align-content: center;
+  touch-action: manipulation;
 }
 
 .cell {
@@ -161,6 +160,7 @@ button {
   display: grid;
   place-items: center;
   text-align: center;
+  touch-action: manipulation;
 }
 
 .cell {
@@ -170,6 +170,7 @@ button {
   font-size: var(--number-size);
   font-weight: 400;
   line-height: 1;
+  touch-action: manipulation;
 }
 
 .cell:nth-child(odd) {
@@ -307,6 +308,7 @@ button {
 }
 
 .actions {
+  width: 100%;
   display: flex;
   justify-content: center;
   gap: 12px;
