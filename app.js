@@ -19,7 +19,6 @@ let timerId = null;
 let paused = false;
 let completed = false;
 let lastTick = Date.now();
-let lastTouchEnd = 0;
 
 function todayKey() {
   const now = new Date();
@@ -445,15 +444,10 @@ async function init() {
 
   document.addEventListener("gesturestart", (event) => event.preventDefault());
   document.addEventListener("gesturechange", (event) => event.preventDefault());
+  document.addEventListener("gestureend", (event) => event.preventDefault());
+  document.addEventListener("dblclick", (event) => event.preventDefault(), { passive: false });
   document.addEventListener("touchmove", (event) => {
     if (event.touches.length > 1) event.preventDefault();
-  }, { passive: false });
-  document.addEventListener("touchend", (event) => {
-    if (event.target.closest("#board")) return;
-
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) event.preventDefault();
-    lastTouchEnd = now;
   }, { passive: false });
 }
 

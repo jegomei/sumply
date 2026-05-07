@@ -21,6 +21,11 @@
 
 * {
   box-sizing: border-box;
+  touch-action: manipulation;
+}
+
+html {
+  touch-action: manipulation;
 }
 
 body {
@@ -28,7 +33,6 @@ body {
   min-height: 100svh;
   background: var(--bg);
   color: var(--ink);
-  touch-action: manipulation;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
   user-select: none;
@@ -41,7 +45,6 @@ button {
   font: inherit;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
 .material-symbols-rounded {
@@ -72,6 +75,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  touch-action: manipulation;
 }
 
 .topbar {
@@ -142,7 +146,6 @@ button {
   grid-template-rows: repeat(5, calc(var(--puzzle-size) / 5)) var(--clue-gap) var(--clue-size);
   justify-content: center;
   align-content: center;
-  touch-action: manipulation;
 }
 
 .cell {
@@ -160,7 +163,6 @@ button {
   display: grid;
   place-items: center;
   text-align: center;
-  touch-action: manipulation;
 }
 
 .cell {
@@ -170,7 +172,6 @@ button {
   font-size: var(--number-size);
   font-weight: 400;
   line-height: 1;
-  touch-action: manipulation;
 }
 
 .cell:nth-child(odd) {
