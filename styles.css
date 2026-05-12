@@ -129,7 +129,10 @@ button {
   font-family: "Noto Sans", sans-serif;
   font-size: 24px;
   font-weight: 400;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0;
+  min-width: 92px;
+  text-align: center;
 }
 
 .board-shell {
@@ -336,6 +339,12 @@ button {
   background: transparent;
 }
 
+#pauseDialog {
+  width: min(100%, 470px);
+  min-height: calc(100svh - 158px);
+  margin: 74px auto 84px;
+}
+
 .modal::backdrop {
   background: rgba(244, 244, 246, 0.74);
   backdrop-filter: blur(4px);
@@ -349,8 +358,13 @@ button {
   flex-direction: column;
   align-items: stretch;
   gap: 20px;
-  background: rgba(255, 255, 255, 0.92);
+  background: #ffffff;
   box-shadow: var(--shadow);
+}
+
+#pauseDialog .modal-card {
+  min-height: calc(100svh - 158px);
+  justify-content: center;
 }
 
 .modal-card.compact {
@@ -423,6 +437,10 @@ button {
 
   .modal {
     width: min(calc(100vw - 48px), 400px);
+  }
+
+  #pauseDialog {
+    width: min(100%, 470px);
   }
 
   .modal-card {

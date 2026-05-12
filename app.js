@@ -10,14 +10,18 @@ const pauseDialog = document.querySelector("#pauseDialog");
 const winDialog = document.querySelector("#winDialog");
 const winStats = document.querySelector("#winStats");
 const copyResultButton = document.querySelector("#copyResultButton");
+const pauseTitle = document.querySelector("#pauseTitle");
+const continueButton = document.querySelector("#continueButton");
+const restartFromPauseButton = document.querySelector("#restartFromPause");
 
 let puzzle = null;
 let puzzleDate = todayKey();
 let cellStates = [];
-let elapsed = 0;
+let elapsedMs = 0;
 let timerId = null;
 let paused = false;
 let completed = false;
+let waitingToStart = false;
 let lastTick = Date.now();
 
 function todayKey() {
@@ -204,7 +208,7 @@ function loadState() {
   const saved = localStorage.getItem(storageKey());
   if (!saved) {
     cellStates = emptyStates();
-    elapsed = 0;
+    elapsedMs = 0;
     completed = false;
     return;
   }
@@ -212,23 +216,29 @@ function loadState() {
   try {
     const parsed = JSON.parse(saved);
     cellStates = parsed.cellStates || emptyStates();
-    elapsed = parsed.elapsed || 0;
+    if (Number.isFinite(parsed.elapsedMs)) {
+      elapsedMs = parsed.elapsedMs;
+    } else {
+      elapsedMs = Number.isFinite(parsed.elapsed) ? parsed.elapsed * 1000 : 0;
+    }
     completed = Boolean(parsed.completed);
   } catch {
     cellStates = emptyStates();
-    elapsed = 0;
+    elapsedMs = 0;
     completed = false;
   }
 }
 
 function saveState() {
-  localStorage.setItem(storageKey(), JSON.stringify({ cellStates, elapsed, completed }));
+  localStorage.setItem(storageKey(), JSON.stringify({ cellStates, elapsedMs, completed }));
 }
 
-function formatTime(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+function formatTime(milliseconds) {
+  const totalCentiseconds = Math.floor(milliseconds / 10);
+  const mins = Math.floor(totalCentiseconds / 6000);
+  const secs = Math.floor((totalCentiseconds % 6000) / 100);
+  const centiseconds = totalCentiseconds % 100;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}.${String(centiseconds).padStart(2, "0")}`;
 }
 
 function rowSum(row) {
@@ -333,15 +343,16 @@ function checkWin() {
   const colsDone = puzzle.colTargets.every((target, col) => colSum(col) === target);
   if (!rowsDone || !colsDone) return;
 
+  tick();
   completed = true;
   saveState();
   stopTimer();
-  winStats.textContent = formatTime(elapsed);
+  winStats.textContent = formatTime(elapsedMs);
   if (!winDialog.open) winDialog.showModal();
 }
 
 async function copyResult() {
-  const result = `He terminado el Sumply de hoy en ${formatTime(elapsed)}`;
+  const result = `He terminado el Sumply de hoy en ${formatTime(elapsedMs)}`;
 
   try {
     await navigator.clipboard.writeText(result);
@@ -365,23 +376,25 @@ async function copyResult() {
 
 function resetDay() {
   cellStates = emptyStates();
-  elapsed = 0;
+  elapsedMs = 0;
   completed = false;
-  paused = false;
-  timerEl.textContent = formatTime(elapsed);
+  waitingToStart = true;
+  paused = true;
+  timerEl.textContent = formatTime(elapsedMs);
   renderBoard();
   saveState();
-  startTimer();
+  stopTimer();
+  showStartPause();
 }
 
 function tick() {
   const now = Date.now();
   if (!paused && !completed) {
-    const diff = Math.floor((now - lastTick) / 1000);
+    const diff = now - lastTick;
     if (diff > 0) {
-      elapsed += diff;
-      lastTick += diff * 1000;
-      timerEl.textContent = formatTime(elapsed);
+      elapsedMs += diff;
+      lastTick = now;
+      timerEl.textContent = formatTime(elapsedMs);
       saveState();
     }
   } else {
@@ -392,7 +405,7 @@ function tick() {
 function startTimer() {
   stopTimer();
   lastTick = Date.now();
-  timerId = window.setInterval(tick, 500);
+  timerId = window.setInterval(tick, 50);
 }
 
 function stopTimer() {
@@ -402,42 +415,70 @@ function stopTimer() {
 
 function openPause() {
   if (completed) return;
-  paused = true;
   tick();
+  waitingToStart = elapsedMs === 0;
+  paused = true;
+  updatePauseDialog();
   if (!pauseDialog.open) pauseDialog.showModal();
 }
 
 function closePause() {
+  const shouldStartTimer = waitingToStart || !timerId;
+  waitingToStart = false;
   paused = false;
   lastTick = Date.now();
+  updatePauseDialog();
+  if (shouldStartTimer && !completed) startTimer();
+}
+
+function updatePauseDialog() {
+  pauseTitle.textContent = waitingToStart ? "SUMPLY" : "JUEGO EN PAUSA";
+  continueButton.textContent = waitingToStart ? "Jugar" : "Continuar";
+  restartFromPauseButton.hidden = waitingToStart;
+}
+
+function showStartPause() {
+  waitingToStart = true;
+  paused = true;
+  updatePauseDialog();
+  if (!pauseDialog.open) pauseDialog.showModal();
 }
 
 async function init() {
   puzzle = await loadDailyPuzzle();
   challengeLabel.textContent = `Reto #${challengeNumber()}`;
   loadState();
-  timerEl.textContent = formatTime(elapsed);
+  timerEl.textContent = formatTime(elapsedMs);
   renderBoard();
-  if (!completed) startTimer();
+  if (!completed) {
+    if (elapsedMs === 0) {
+      showStartPause();
+    } else {
+      startTimer();
+    }
+  }
 
   document.querySelector("#pauseButtonBottom").addEventListener("click", openPause);
-  document.querySelector("#continueButton").addEventListener("click", closePause);
-  document.querySelector("#resetButton").addEventListener("click", resetDay);
+  continueButton.addEventListener("click", closePause);
   copyResultButton.addEventListener("click", copyResult);
-  document.querySelector("#restartFromPause").addEventListener("click", () => {
+  restartFromPauseButton.addEventListener("click", () => {
     pauseDialog.close();
     resetDay();
   });
 
   pauseDialog.addEventListener("close", () => {
-    if (!completed) closePause();
+    if (!completed && !waitingToStart && !timerId) closePause();
+  });
+
+  pauseDialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
   });
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       tick();
       stopTimer();
-    } else if (!completed) {
+    } else if (!completed && !waitingToStart) {
       startTimer();
     }
   });
