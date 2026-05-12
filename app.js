@@ -249,8 +249,18 @@ function colSum(col) {
   return puzzle.values.reduce((sum, row, rowIndex) => sum + (cellStates[rowIndex][col] === "cross" ? 0 : row[col]), 0);
 }
 
+function rowKeepSum(row) {
+  return puzzle.values[row].reduce((sum, value, col) => sum + (cellStates[row][col] === "keep" ? value : 0), 0);
+}
+
+function colKeepSum(col) {
+  return puzzle.values.reduce((sum, row, rowIndex) => sum + (cellStates[rowIndex][col] === "keep" ? row[col] : 0), 0);
+}
+
 function createClue({ kind, index, target, sum }) {
   const isDone = sum === target;
+  const keepSum = kind === "row" ? rowKeepSum(index) : colKeepSum(index);
+  const canConfirmSelection = !isDone && keepSum === target;
   const clue = document.createElement("div");
   clue.className = `clue ${isDone ? "done" : ""}`;
 
@@ -264,7 +274,7 @@ function createClue({ kind, index, target, sum }) {
     clue.setAttribute("aria-label", `Objetivo de columna ${index + 1}: ${target}. Suma actual: ${sum}`);
   }
 
-  if (!isDone) {
+  if (!isDone && !canConfirmSelection) {
     clue.innerHTML = `<span>${target}</span>`;
     return clue;
   }
@@ -273,8 +283,14 @@ function createClue({ kind, index, target, sum }) {
   button.type = "button";
   button.className = "clue-button";
   button.textContent = target;
-  button.setAttribute("aria-label", `Confirmar ${kind === "row" ? "fila" : "columna"} ${index + 1}`);
-  button.addEventListener("click", () => confirmLine(kind, index));
+  button.setAttribute("aria-label", `${isDone ? "Confirmar" : "Tachar no seleccionados de"} ${kind === "row" ? "fila" : "columna"} ${index + 1}`);
+  button.addEventListener("click", () => {
+    if (isDone) {
+      confirmLine(kind, index);
+    } else {
+      eliminateUnselectedLine(kind, index);
+    }
+  });
   clue.append(button);
   return clue;
 }
@@ -320,6 +336,22 @@ function confirmLine(kind, index) {
     const col = kind === "row" ? i : index;
     if (cellStates[row][col] !== "cross") {
       cellStates[row][col] = "keep";
+    }
+  }
+
+  renderBoard();
+  saveState();
+  checkWin();
+}
+
+function eliminateUnselectedLine(kind, index) {
+  if (paused || completed) return;
+
+  for (let i = 0; i < SIZE; i += 1) {
+    const row = kind === "row" ? index : i;
+    const col = kind === "row" ? i : index;
+    if (cellStates[row][col] !== "keep") {
+      cellStates[row][col] = "cross";
     }
   }
 

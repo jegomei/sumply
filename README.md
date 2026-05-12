@@ -17,5 +17,6 @@ Después abre `http://localhost:4173/`.
 - Toca una celda una vez para tacharla.
 - Tócala dos veces para marcarla como incluida.
 - Las pistas de la derecha y de abajo muestran el objetivo.
-- Si una pista se pone azul, puedes tocarla para marcar como válidos todos los números no tachados de esa fila o columna.
+- Si una pista se completa, puedes tocarla para marcar como válidos todos los números no tachados de esa fila o columna.
+- Si los números marcados como incluidos suman exactamente una pista, puedes tocar esa pista para tachar el resto de la fila o columna.
 - El reto se completa cuando todas las filas y columnas coinciden con sus pistas.
