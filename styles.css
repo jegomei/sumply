@@ -5,14 +5,14 @@
   --line: #252527;
   --hairline: #ceced2;
   --cell: #ffffff;
-  --cell-valid: #e8e3ff;
-  --cell-valid-ring: var(--cincoku-blue);
+  --cell-valid: #e8ffeb;
+  --cell-valid-ring: #00da4c;
   --purple: #4d2bd6;
   --cincoku-blue: #4c29cc;
   --purple-dark: #3718ad;
-  --orange: #fb7b00;
+  --orange: #ff4f4f;
   --gray: #8f8f8f;
-  --danger: #e14b42;
+  --danger: #ff4f4f;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   --number-size: clamp(24px, 8vw, 36px);
   color-scheme: light;
@@ -67,11 +67,12 @@ button {
 .app {
   --clue-size: 42px;
   --clue-gap: 12px;
+  --app-pad-top: max(6px, env(safe-area-inset-top));
   --puzzle-size: min(calc(100vw - 40px - var(--clue-size) - var(--clue-gap)), 398px);
   width: min(100%, 470px);
   min-height: 100svh;
   margin: 0 auto;
-  padding: max(6px, env(safe-area-inset-top)) 20px max(26px, env(safe-area-inset-bottom));
+  padding: var(--app-pad-top) 20px max(26px, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -79,26 +80,35 @@ button {
 }
 
 .topbar {
-  width: 100%;
-  min-height: 54px;
+  width: 100vw;
+  min-height: calc(62px + var(--app-pad-top));
+  margin-top: calc(-1 * var(--app-pad-top));
+  margin-inline: calc(50% - 50vw);
+  padding: calc(8px + var(--app-pad-top)) 20px 10px;
+  position: relative;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  background: var(--orange);
 }
 
 .brand {
-  display: flex;
+  width: 100%;
+  display: grid;
   justify-content: center;
-  align-items: flex-start;
-  gap: 10px;
+  place-items: center;
+  text-align: center;
 }
 
 .brand-icon {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 auto;
+  position: absolute;
+  left: 20px;
+  top: calc(50% + var(--app-pad-top) / 2);
+  width: 54px;
+  height: 54px;
   border-radius: 8px;
   display: block;
+  transform: translateY(-50%);
 }
 
 .brand h1 {
@@ -106,15 +116,16 @@ button {
   font-size: 31px;
   line-height: 1;
   letter-spacing: 0;
-  font-weight: 400;
+  font-weight: 900;
+  color: #050505;
 }
 
 .brand p {
   margin: 4px 0 0;
-  color: var(--muted);
+  color: #050505;
   font-size: 16px;
   font-weight: 400;
-  text-align: left;
+  text-align: center;
 }
 
 .timer-row {
@@ -214,7 +225,7 @@ button {
 }
 
 .cell:focus-visible {
-  outline: 4px solid rgba(251, 123, 0, 0.35);
+  outline: 4px solid rgba(255, 79, 79, 0.35);
   outline-offset: -4px;
 }
 
@@ -265,7 +276,7 @@ button {
 }
 
 .clue.done {
-  color: var(--cincoku-blue);
+  color: #050505;
   font-weight: 900;
 }
 
